@@ -1,0 +1,244 @@
+/**
+ * General elements
+ */
+
+html.summer {
+    body {
+        /*background-color: white;*/
+    }
+}
+
+html.winter {
+    body {
+        background: white;
+    }
+}
+// Om man vill ha en specifk style med klassen chill
+body.chill {
+   // background-color: darken(#FFFFFF, 1%);
+}
+
+#header,
+#navbar,
+#flash,
+#footer {
+    width: 100%;
+    margin-bottom: 22px;
+}
+
+
+#main {
+    .column(@columns / 3 * 2);
+    margin-bottom: 22px;
+}
+
+#sidebar {
+    .column(@columns / 3);
+    margin-bottom: 22px;
+}
+
+#navbar {
+    background-color: #FFFFFF;
+}
+
+#featured-1,
+#featured-2,
+#featured-3,
+#triptych-1,
+#triptych-2,
+#triptych-3 {
+    .column(@columns / 3);
+    margin-bottom: 22px;
+}
+
+#footer-col-1,
+#footer-col-2,
+#footer-col-3,
+#footer-col-4 {
+    .column(@columns / 4);
+    margin-bottom: 22px;
+}
+
+
+#wrap-featured,
+#wrap-main,
+#wrap-triptych,
+#wrap-footer-col {
+    margin-bottom: 22px;
+    .clearfix();
+}
+
+#wrapper-header {
+    background-color: @footer;
+    //margin: 0 auto;
+    width: @columns;
+    padding: 10px;
+    text-align: center;
+    //max-width: 960px;
+    .clear();
+}
+
+body {
+  color: #333;
+  //font-family: arial, sans-serif;
+  overflow-y: scroll;
+  background-color: @body;
+
+}
+
+h1 {
+  font-size: 2.2em;
+}
+
+
+/**
+ * Layout of the main page elements
+ */
+ #wrapper {
+    margin: 0 auto;
+    width: 960px;
+    padding: 10px;
+    background: @wrapper;
+    min-height: 885px;
+}
+
+
+/**
+ * Layout for header
+ */
+ #header {
+  //position: relative;
+}
+
+
+.sitetitle {
+ // position: absolute;
+  top: 6px;
+  left: 130px;
+  color: @green;
+  font-size: 48px;
+}
+
+.siteslogan {
+ // position: absolute;
+ // top: 55px;
+ // left: 130px;
+  font-style: italic;
+  color: #666;
+}
+
+
+/**
+ * Layout for main
+ */
+ #main {
+  min-height: 20em;
+}
+
+
+/**
+ * Layout for footer
+ */
+ #footer {
+    margin-top: 40px;
+    border-top: 1px solid #ccc;
+    padding-top: 22px;
+    background: @footer;
+    min-height: 150px;
+    margin-bottom: 0px;
+    text-align: center;
+
+}
+
+.sitefooter {
+    color: #666;
+}
+
+
+/**
+ * For articles
+ */
+ .article1 {
+  width: 100%;
+  padding-right: 1em;
+}
+
+.article1 h1,
+.article1 h2 {
+  border-bottom: 1px solid #ccc;
+}
+
+.byline {
+  margin-top: 44px;
+  border-top: 1px dashed #ccc;
+  padding-top: 22px;
+  color: #666;
+}
+
+.byline p {
+  margin-top: 0;
+}
+
+/*Lite transitions för A och I*/
+
+i:hover {
+    color: #82b8d0;
+    -webkit-transition: all .2s ease-out;
+    -moz-transition: all .2s ease-out;
+    -o-transition: all .2s ease-out;
+    transition: all .2s ease-out;
+}
+
+a:hover {
+  color: #82b8d0;
+  -webkit-transition: all .2s ease-out;
+  -moz-transition: all .2s ease-out;
+  -o-transition: all .2s ease-out;
+  transition: all .2s ease-out;
+}
+
+img:hover {
+    opacity: 0.8;
+    -webkit-transition: all .2s ease-out;
+    -moz-transition: all .2s ease-out;
+    -o-transition: all .2s ease-out;
+    transition: all .2s ease-out;
+}
+
+
+
+a {
+    color: #F18D05;
+    text-decoration: none;
+    border: 0;
+}
+
+
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  background-color: #f18d05;
+  border: 0;
+  display: inline-block;
+  cursor: pointer;
+  color: #FFF;
+  font-size: 14px;
+  padding: 4px 8px;
+  outline: none;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #f18d05;
+  margin: 0;
+}
+
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover {
+  background-color: #FFBB33;
+}
+
+.right { float: right;}
+.left { float: left;}
+.middle { margin: 0 auto;}
+.clear { clear: both;}
+.divider { width: 100%; height: 10px;}
