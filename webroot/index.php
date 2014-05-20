@@ -18,9 +18,9 @@ $di->setShared('db', function () {
 });
 
 // Set flash.
-$di->setShared('flash', function () {
-    $flash = new \Anax\Flash\CFlash();
-    return $flash;
+$di->setShared('flashy', function () {
+    $flashy = new \Anax\Flash\CFlash();
+    return $flashy;
 });
 
 // Använd nyskapad Comment och commentcontroller...
@@ -75,6 +75,11 @@ $app->router->add('questions', function () use ($app) {
 $app->router->add('tags', function () use ($app) {
     $app->theme->setTitle('Tags');
     $app->views->addString('Tags page', 'main');
+});
+
+$app->router->add('about', function () use ($app) {
+    $app->theme->setTitle('About');
+    $app->views->addString('About page', 'main');
 });
 
 $app->router->add('source', function () use ($app) {

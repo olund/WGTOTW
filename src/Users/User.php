@@ -7,6 +7,7 @@ namespace Anax\Users;
  */
 class User extends \Anax\MVC\CDatabaseModel
 {
+
 	public function findByName($acronym)
 	{
 		$this->db->select()->from($this->getSource())->where('acronym = ?');

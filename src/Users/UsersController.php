@@ -315,4 +315,70 @@ class UsersController implements \Anax\DI\IInjectionAware
         $url = $this->url->create('users/id/' . $user->id);
         $this->response->redirect($url);
     }
+
+    /**
+     * Login
+     * @return [type] [description]
+     */
+    public function loginAction()
+    {
+        $this->theme->setTitle('Login');
+        // Kolla om man redan är inloggad.
+
+
+        // Skapa form
+
+        $this->form->create([],
+            [
+                'username' => [
+                    'type' => 'text',
+                    'name' => 'username',
+                    'label' => 'Username',
+                    'required' => true,
+                    'validation' => ['not_empty'],
+                ],
+
+                'password' => [
+                    'type' => 'password',
+                    'name' => 'password',
+                    'label' => 'Password',
+                    'required' => true,
+                    'validation' => ['not_empty'],
+                ],
+
+                'submit' => [
+                    'type' => 'submit',
+                    'value' => 'Login',
+                    'callback' => function($form) {
+                        $this->form->saveInSession = true;
+                        return true;
+                    }
+                ]
+            ]);
+
+        $status = $this->form->check();
+        if ($status === true) {
+            // Login
+            dump('Hello World');
+        }
+
+        $this->views->add('me/page', [
+            'title' => 'Login',
+            'content' => $this->form->getHTML(),
+        ]);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
