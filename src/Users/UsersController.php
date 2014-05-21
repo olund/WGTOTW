@@ -10,6 +10,11 @@ class UsersController implements \Anax\DI\IInjectionAware
         // Kallas automagist
         $this->users = new \Anax\Users\User();
         $this->users->setDI($this->di);
+
+        $this->auth = new \Anax\Authenticate\Authenticate('user');
+        $this->auth->setDI($this->di);
+
+        $this->flashy = new \Anax\Flash\CFlash();
     }
 
     public function listAction()
@@ -324,7 +329,10 @@ class UsersController implements \Anax\DI\IInjectionAware
     {
         $this->theme->setTitle('Login');
         // Kolla om man redan är inloggad.
-
+        if ($this->auth->isAuthenticated()) {
+            //$this->response->redirect($this->url->create(''));
+            $this->flashy->notice('Already logged in!');
+        }
 
         // Skapa form
 
@@ -359,15 +367,49 @@ class UsersController implements \Anax\DI\IInjectionAware
         $status = $this->form->check();
         if ($status === true) {
             // Login
-            dump('Hello World');
+
+            // Save shit.
+            $acronym = $_SESSION['form-save']['username']['value'];
+            $password = $_SESSION['form-save']['password']['value'];
+            $this->session->noSet('form-save');
+
+
+            if($this->auth->authenticate($acronym, $password)) {
+                $name = $this->session->get('user')->username;
+                $this->flashy->success("Välkommen {$name}");
+            } else {
+                echo 'NOPE';
+            }
         }
+        $flash = $this->flashy->get();
 
         $this->views->add('me/page', [
             'title' => 'Login',
             'content' => $this->form->getHTML(),
-        ]);
+        ])->addString($flash, 'flash');
 
     }
+
+    public function logoutAction()
+    {
+        $this->theme->setTitle('Logout');
+        if ($this->auth->isAuthenticated()) {
+            $user = $this->session->get('user');
+            $this->auth->logout();
+            $this->flashy->success("Welcome back {$user->username}");
+        } else {
+            $this->flashy->error('Please login before logout u noob');
+        }
+
+        $this->views->addString($this->flashy->get(), 'flash');
+    }
+
+    public function profileAction($acronym)
+    {
+        $this->theme->setTitle("$acronym's profile");
+        echo $acronym;
+    }
+
 
 
 

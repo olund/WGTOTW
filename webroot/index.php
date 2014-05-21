@@ -79,7 +79,13 @@ $app->router->add('tags', function () use ($app) {
 
 $app->router->add('about', function () use ($app) {
     $app->theme->setTitle('About');
-    $app->views->addString('About page', 'main');
+    $content = $app->fileContent->get('about.md');
+    $content = $app->textFilter->doFilter($content, 'shortcode, markdown');
+
+    $app->views->add('me/page', [
+        'content' => $content,
+    ], 'main');
+
 });
 
 $app->router->add('source', function () use ($app) {

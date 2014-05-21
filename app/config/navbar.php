@@ -20,13 +20,13 @@ return [
 
 
         'questions' => [
-            'text'  => '<i class="fa fa-picture-o"></i> Questions',
+            'text'  => '<i class="fa fa-question-circle"></i> Questions',
             'url'   => 'questions',
             'title' => 'Questions',
         ],
 
         'tags' => [
-            'text' => '<i class="fa fa-flash"></i> Tags',
+            'text' => '<i class="fa fa-tag"></i> Tags',
             'url' => 'tags',
             'title' => 'Tags',
         ],
@@ -39,7 +39,7 @@ return [
 
         // This is a menu item
         'about' => [
-            'text'  =>'<i class="fa fa-wrench"></i> About',
+            'text'  =>'<i class="fa fa-star"></i> About',
             'url'   =>'about',
             'title' => 'About'
         ],

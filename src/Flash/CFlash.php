@@ -41,7 +41,6 @@ class CFlash
      */
     private function setKey($key, $value)
     {
-        //$_SESSION['flash'][$key][] = $value;
         $_SESSION['flash'][] = [
             'type' => $key,
             'message' => $value,
@@ -109,6 +108,4 @@ class CFlash
         }
         return $messages;
     }
-
-
 }

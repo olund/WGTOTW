@@ -12,6 +12,6 @@ class User extends \Anax\MVC\CDatabaseModel
 	{
 		$this->db->select()->from($this->getSource())->where('acronym = ?');
 		$this->db->execute([$acronym]);
-		return $this->db->fetchInfo($this);
+		return $this->db->fetchInto($this);
 	}
 }
