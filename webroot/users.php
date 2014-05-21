@@ -19,6 +19,17 @@ $di->set('UsersController', function () use ($di) {
     return $controller;
 });
 
+$di->setShared('auth', function() use ($di) {
+    $module = new \Anax\Authenticate\Authenticate('user');
+    $module->setDI($di);
+    return $module;
+});
+// Set flash.
+$di->setShared('flashy', function () {
+    $flashy = new \Anax\Flash\CFlash();
+    return $flashy;
+});
+
 $di->set('form', '\Mos\HTMLForm\CForm');
 $app->session;
 

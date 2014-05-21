@@ -17,6 +17,16 @@ class UsersController implements \Anax\DI\IInjectionAware
         $this->flashy = new \Anax\Flash\CFlash();
     }
 
+    public function indexAction()
+    {
+        $all = $this->users->findAll();
+        $this->theme->setTitle('List all users');
+        $this->views->add('users/list', [
+            'users' =>  $all,
+            'title' =>  'All users',
+        ]);
+    }
+
     public function listAction()
     {
         $all = $this->users->findAll();
@@ -376,17 +386,20 @@ class UsersController implements \Anax\DI\IInjectionAware
 
             if($this->auth->authenticate($acronym, $password)) {
                 $name = $this->session->get('user')->username;
-                $this->flashy->success("Välkommen {$name}");
+                $this->flashy->success("Welcome {$name}");
+                $url = $this->url->create('');
             } else {
-                echo 'NOPE';
+                $this->flashy->error('Wrong username/password');
+                $url = $this->url->create('users/login');
             }
+            $this->response->redirect($url);
         }
         $flash = $this->flashy->get();
 
         $this->views->add('me/page', [
             'title' => 'Login',
             'content' => $this->form->getHTML(),
-        ])->addString($flash, 'flash');
+        ]);
 
     }
 
@@ -394,20 +407,37 @@ class UsersController implements \Anax\DI\IInjectionAware
     {
         $this->theme->setTitle('Logout');
         if ($this->auth->isAuthenticated()) {
-            $user = $this->session->get('user');
             $this->auth->logout();
-            $this->flashy->success("Welcome back {$user->username}");
+            $this->flashy->success("WHY U LEAVE?!");
+            $url = $this->url->create('');
         } else {
             $this->flashy->error('Please login before logout u noob');
-        }
+            $url = $this->url->create('users/login');
 
-        $this->views->addString($this->flashy->get(), 'flash');
+        }
+        $url = $this->url->create('');
+        $this->response->redirect($url);
     }
 
     public function profileAction($acronym)
     {
         $this->theme->setTitle("$acronym's profile");
-        echo $acronym;
+
+        if (is_numeric($acronym)) {
+            $user = $this->users->find($acronym);
+        } else {
+            $user = $this->users->findByName($acronym);
+        }
+        if (!$user) {
+            die('User does not exist');
+        }
+        $answers = null;
+        $questions = null;
+        $this->views->add('users/profile', [
+            'user' => $user,
+            'questions' => $questions,
+            'answers' => $answers,
+        ]);
     }
 
 

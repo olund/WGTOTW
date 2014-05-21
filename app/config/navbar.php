@@ -33,7 +33,7 @@ return [
 
         'users' => [
             'text'  => '<i class="fa fa-user"></i> Användare',
-            'url'   => 'users.php',
+            'url'   => 'users',
             'title' => 'Användare',
         ],
 

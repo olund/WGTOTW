@@ -30,6 +30,20 @@ $di->set('CommentsController', function () use ($di) {
     return $controller;
 });
 
+$di->set('UsersController', function () use ($di) {
+    $controller = new \Anax\Users\UsersController();
+    $controller->setDI($di);
+    return $controller;
+});
+
+$di->setShared('auth', function() use ($di) {
+    $module = new \Anax\Authenticate\Authenticate('user');
+    $module->setDI($di);
+    return $module;
+});
+
+$app->views->addString($app->flashy->get(), 'flash');
+
 // Home route
 $app->router->add('', function () use ($app) {
     $app->theme->setTitle('Me-sida');
@@ -76,6 +90,11 @@ $app->router->add('tags', function () use ($app) {
     $app->theme->setTitle('Tags');
     $app->views->addString('Tags page', 'main');
 });
+/*
+$app->router->add('users', function () use ($app) {
+    $app->theme->setTitle('Users');
+        $app->views->addString('Users page', 'main');
+});*/
 
 $app->router->add('about', function () use ($app) {
     $app->theme->setTitle('About');

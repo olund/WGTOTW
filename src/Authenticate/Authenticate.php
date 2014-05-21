@@ -12,25 +12,32 @@ class Authenticate extends \Anax\MVC\CDatabaseModel
         $this->loggedIn = false;
     }
 
+    public function initialize()
+    {
+        if (is_null($this->session->get('user'))) {
+            $user = new \Anax\Users\User();
+            $this->session->set('user', $user);
+        }
+    }
+
     public function authenticate($acronym, $password)
     {
+        $this->initialize();
         $success = false;
+        $user = $this->session->get('user');
 
         $this->db->select()
                 ->from($this->dbName)
                 ->where('acronym = ?');
         $this->db->execute([$acronym]);
-
-        $user = $this->session->get('user');
-
-
         $res = $this->db->fetchAll();
-        if (isset($res) && password_verify($password, $res[0]->password)) {
+
+        if ($res != null && password_verify($password, $res[0]->password)) {
             $user->id = $res[0]->id;
             $user->username = $res[0]->acronym;
             $user->loggedIn = true;
 
-            $this->session->noSet('user');
+            $this->session->noSet('user', $user);
             $this->session->set('user', $user);
             $success = true;
         }
