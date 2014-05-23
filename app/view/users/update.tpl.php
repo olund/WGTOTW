@@ -9,5 +9,5 @@
 <? else : ?>
 
 <? endif; ?>
- 
-<p><a href='<?=$this->url->create('users/id')?>'><i class="fa fa-arrow-left"></i> Back</a></p>
+
+<p><a href='<?=$this->url->create("users/profile/$user->acronym")?>'><i class="fa fa-arrow-left"></i> Back</a></p>

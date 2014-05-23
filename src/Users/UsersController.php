@@ -87,20 +87,20 @@ class UsersController implements \Anax\DI\IInjectionAware
         if (!isset($acronym)) {
             $form = $this->form;
             $form = $form->create([], [
-            'acronym' => [
-                'type'        => 'text',
-                'label'       => 'Username or ID:',
-                'required'    => true,
-                'validation'  => ['not_empty'],
-            ],
-            'submit' => [
-                'type'      => 'submit',
-                'callback'  => function ($form) {
-                    $form->saveInSession = true;
-                    return true;
-                }
-            ],
-        ]);
+                'acronym' => [
+                    'type'        => 'text',
+                    'label'       => 'Username or ID:',
+                    'required'    => true,
+                    'validation'  => ['not_empty'],
+                ],
+                'submit' => [
+                    'type'      => 'submit',
+                    'callback'  => function ($form) {
+                        $form->saveInSession = true;
+                        return true;
+                    }
+                ],
+            ]);
 
             $status = $form->check();
 
@@ -189,13 +189,20 @@ class UsersController implements \Anax\DI\IInjectionAware
         ]);
     }
 
-    public function updateAction($id = null)
+    public function updateAction($id)
     {
         $this->theme->setTitle('Update user');
         if (!isset($id)) {
             die('Missing id..');
         }
         $user = $this->users->find($id);
+
+        // Check if the user owns the profile.
+        $usrSession = $this->session->get('user');
+        $edit = $user->id == $usrSession->id ? true : false;
+        if (!$edit) {
+            die('YOU CANT DO THAT');
+        }
 
         $form = $this->form;
         $form = $form->create([], [
@@ -220,6 +227,12 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'validation' => ['not_empty'],
                 'value' => $user->name,
             ],
+            'password' => [
+                'type' => 'password',
+                'label' => 'New Password',
+                'required' => false,
+                'validation' => ['not_empty'],
+            ],
 
             'submit' => [
                 'type' => 'submit',
@@ -229,6 +242,7 @@ class UsersController implements \Anax\DI\IInjectionAware
                        'acronym' => $form->Value('acronym'),
                        'email' => $form->Value('email'),
                        'name' => $form->Value('name'),
+                       'password' => password_hash($form->Value('password'), PASSWORD_DEFAULT),
                     ]);
 
                     return true;
@@ -239,7 +253,7 @@ class UsersController implements \Anax\DI\IInjectionAware
 
         $status = $form->check();
         if ($status == true) {
-            $url = $this->url->create('users/list');
+            $url = $this->url->create("users/profile/$user->acronym");
             $this->response->redirect($url);
         }
 
@@ -249,6 +263,7 @@ class UsersController implements \Anax\DI\IInjectionAware
             'content' => $form->getHTML(),
         ]);
     }
+
 
     public function saveAction()
     {
@@ -313,12 +328,12 @@ class UsersController implements \Anax\DI\IInjectionAware
     public function statusAction($id)
     {
         $user = $this->users->find($id);
-        if(!isset($id)) {
+        if (!isset($id)) {
             die('Id är inte satt');
         }
         $now = date('Y-m-d h:i:s');
 
-        if(isset($user->active)) {
+        if (isset($user->active)) {
             // Då ska den bli inaktiv
             $user->active = null;
         } else {
@@ -346,8 +361,7 @@ class UsersController implements \Anax\DI\IInjectionAware
 
         // Skapa form
 
-        $this->form->create([],
-            [
+        $this->form->create([], [
                 'username' => [
                     'type' => 'text',
                     'name' => 'username',
@@ -367,7 +381,7 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'submit' => [
                     'type' => 'submit',
                     'value' => 'Login',
-                    'callback' => function($form) {
+                    'callback' => function ($form) {
                         $this->form->saveInSession = true;
                         return true;
                     }
@@ -384,7 +398,7 @@ class UsersController implements \Anax\DI\IInjectionAware
             $this->session->noSet('form-save');
 
 
-            if($this->auth->authenticate($acronym, $password)) {
+            if ($this->auth->authenticate($acronym, $password)) {
                 $name = $this->session->get('user')->username;
                 $this->flashy->success("Welcome {$name}");
                 $url = $this->url->create('');
@@ -421,36 +435,36 @@ class UsersController implements \Anax\DI\IInjectionAware
 
     public function profileAction($acronym)
     {
-        $this->theme->setTitle("$acronym's profile");
+        $title = "$acronym's profile";
+        $this->theme->setTitle($title);
 
         if (is_numeric($acronym)) {
             $user = $this->users->find($acronym);
         } else {
             $user = $this->users->findByName($acronym);
         }
-        if (!$user) {
-            die('User does not exist');
+
+        // Check if the user owns the profile.
+        $edit = false;
+        if ($this->session->get('user') !== null) {
+            $usrSession = $this->session->get('user');
+            $edit = $user->id == $usrSession->id ? true : false;
         }
+
+
         $answers = null;
         $questions = null;
         $this->views->add('users/profile', [
+            'title' => $title,
+            'user' => $user,
+            'edit' => $edit,
+        ], 'main');
+
+        $this->views->add('users/profile-sidebar', [
             'user' => $user,
             'questions' => $questions,
             'answers' => $answers,
-        ]);
+        ], 'sidebar');
+
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
