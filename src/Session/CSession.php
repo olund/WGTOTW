@@ -107,7 +107,7 @@ class CSession
     public function noSet($key)
     {
         if (isset($_SESSION[$key])) {
-            session_unset($_SESSION[$key]);
+            unset($_SESSION[$key]);
         }
     }
 }

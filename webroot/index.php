@@ -9,6 +9,7 @@ $app->theme->configure(ANAX_APP_PATH . 'config/theme-grid.php');
 $app->navbar->configure(ANAX_APP_PATH . 'config/navbar.php');
 $app->url->setUrlType(\Anax\Url\CUrl::URL_CLEAN);
 $di->set('form', '\Mos\HTMLForm\CForm');
+$di->set('time', '\Anax\Time\CTime');
 
 $di->setShared('db', function () {
     $db = new \Mos\Database\CDatabaseBasic();
@@ -36,6 +37,12 @@ $di->set('UsersController', function () use ($di) {
     return $controller;
 });
 
+$di->set('QuestionsController', function () use ($di) {
+    $controller = new \Anax\Questions\QuestionsController();
+    $controller->setDI($di);
+    return $controller;
+});
+
 $di->setShared('auth', function() use ($di) {
     $module = new \Anax\Authenticate\Authenticate('user');
     $module->setDI($di);
@@ -50,8 +57,10 @@ $app->router->add('', function () use ($app) {
     $content = $app->fileContent->get('me.md');
     $content = $app->textFilter->doFilter($content, 'shortcode, markdown');
 
-    $byline = $app->fileContent->get('byline.md');
-    $byline = $app->textFilter->doFilter($byline, 'shortcode, markdown');
+    $app->dispatcher->forward([
+        'controller' => 'questions',
+        'action' => 'sidebar',
+    ]);
 
     $app->views->add('me/page', [
         'content' => $content,
@@ -79,12 +88,13 @@ $app->router->add('redovisning', function () use ($app) {
     ]);
 });
 
+/*
 // Questions route
 $app->router->add('questions', function () use ($app) {
     $app->theme->setTitle('Questions');
     $app->views->addString('Questions page', 'main');
 });
-
+*/
 // Tags route
 $app->router->add('tags', function () use ($app) {
     $app->theme->setTitle('Tags');
