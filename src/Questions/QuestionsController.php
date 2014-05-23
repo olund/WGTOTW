@@ -17,6 +17,7 @@ class QuestionsController implements \Anax\DI\IInjectionAware
      */
     public function indexAction()
     {
+        // Get all the questions
         $questions = $this->questions->findAll();
         $this->theme->setTitle('All questions');
 
@@ -35,7 +36,7 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             $this->response->redirect($this->url->create('users/login'));
             exit();
         }
-
+        $this->theme->setTitle('Add a new question');
 
         // Create the form
         $form = $this->form;
@@ -74,6 +75,9 @@ class QuestionsController implements \Anax\DI\IInjectionAware
 
             // Create slug
             $slug = $this->createSlug($title);
+            // Markdown wonders.
+            // IDK IF I should have this here...
+            $content = $this->textFilter->doFilter($content, 'shortcode, markdown');
 
             // Save the question.
             $this->questions->save([
@@ -116,8 +120,8 @@ class QuestionsController implements \Anax\DI\IInjectionAware
     public function sidebarAction()
     {
         $questions = $this->questions->findLatest(3);
-        $this->views->add('questions/list', [
-            'title' => 'Latest questions',
+        $this->views->add('question/list', [
+            'title' => 'Latest Questions',
             'questions' => $questions,
         ], 'sidebar');
     }
@@ -140,7 +144,6 @@ class QuestionsController implements \Anax\DI\IInjectionAware
         $this->theme->setTitle('Setup');
 
         // SQL...
-
         $this->db->dropTableIfExists('question')->execute();
 
         $this->db->createTable('question', [
@@ -154,6 +157,19 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             'deleted' => ['datetime'],
         ])->execute();
 
+        $this->questions->save([
+            'user_id' => '1',
+            'title' => 'test question',
+            'content' => 'Who Am I?',
+            'slug' => 'test-question',
+        ]);
+
+        $this->questions->save([
+            'user_id' => '2',
+            'title' => 'sample question',
+            'content' => 'Who are YOU?',
+            'slug' => 'sample-question',
+        ]);
         $this->views->addString('Database is updated:d', 'main');
     }
 

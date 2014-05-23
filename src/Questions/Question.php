@@ -10,16 +10,20 @@ class Question extends \Anax\MVC\CDatabaseModel
      */
     public function findAll()
     {
-        $this->db->select('*, ' . $this->db->getTablePrefix() . $this->getSource() . '.id AS q_id , phpmvc_question.created AS created')
+        $this->db->select('*, phpmvc_question.id AS q_id, phpmvc_question.created AS created')
                  ->from($this->getSource())
-                 ->join('user', $this->db->getTablePrefix() . 'user.id = ' . $this->db->getTablePrefix() . $this->getSource() . '.user_id')
-                 ->orderBy($this->db->getTablePrefix() . $this->getSource() .'.created DESC');
+                 ->join('user', 'phpmvc_user.id = phpmvc_question.user_id')
+                 ->orderBy('phpmvc_question.created DESC');
 
         $this->db->execute();
-        $this->db->setFetchModeClass(__CLASS__);
         return $this->db->fetchAll();
     }
 
+    /**
+     * Find a question with id
+     * @param  int $id the id
+     * @return array
+     */
     public function find($id)
     {
         $this->db->select('*, phpmvc_question.id AS q_id, phpmvc_question.created AS created')
@@ -31,6 +35,11 @@ class Question extends \Anax\MVC\CDatabaseModel
         return $this->db->fetchInto($this);
     }
 
+    /**
+     * Find a quesiton based on a slug
+     * @param  string $slug The slug
+     * @return array
+     */
     public function findBySlug($slug)
     {
         $this->db->select()
@@ -41,16 +50,20 @@ class Question extends \Anax\MVC\CDatabaseModel
         return $this->db->fetchInto($this);
     }
 
-    public function findLatest($nr)
+    /**
+     * Find the latest questions..
+     * @param  int $limit the limit
+     * @return [type]     [description]
+     */
+    public function findLatest($limit)
     {
-        $this->db->select('*, ' . $this->db->getTablePrefix() . $this->getSource() . '.id AS q_id , phpmvc_question.created AS created')
+        $this->db->select('*, phpmvc_question.id AS q_id , phpmvc_question.created AS created')
                 ->from($this->getSource())
-                ->join('user', $this->db->getTablePrefix() . 'user.id = ' . $this->db->getTablePrefix() . $this->getSource() . '.user_id')
-                ->orderBy($this->db->getTablePrefix() . $this->getSource() .'.created DESC')
-                ->limit($nr);
+                ->join('user', 'phpmvc_user.id = phpmvc_question.user_id')
+                ->orderBy('phpmvc_question.created DESC')
+                ->limit($limit);
 
         $this->db->execute();
-        $this->db->setFetchModeClass(__CLASS__);
         return $this->db->fetchAll();
     }
 }

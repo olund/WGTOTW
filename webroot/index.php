@@ -64,7 +64,6 @@ $app->router->add('', function () use ($app) {
 
     $app->views->add('me/page', [
         'content' => $content,
-        'byline'  => $byline,
     ], 'main');
 });
 
