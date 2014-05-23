@@ -20,7 +20,11 @@ class CFlashBasic
      * Set a message.
      *
      * @param string a message.
+<<<<<<< HEAD
      *
+=======
+     *     
+>>>>>>> upstream/master
      * @return void
      */
     public function setMessage($message)

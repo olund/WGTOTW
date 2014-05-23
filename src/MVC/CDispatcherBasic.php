@@ -37,7 +37,11 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
         $name = str_replace(['-', '_'], ' ', $name);
         $name = ucwords($name);
         $name = str_replace(' ', '', $name);
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/master
         return $name;
     }
 
@@ -111,7 +115,11 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
     public function isCallable()
     {
         $handler = [$this->controller, $this->action];
+<<<<<<< HEAD
         return is_callable($handler);
+=======
+        return method_exists($this->controller, $this->action) && is_callable($handler);
+>>>>>>> upstream/master
     }
 
 
@@ -124,6 +132,7 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
     public function dispatch()
     {
         $handler = [$this->controller, 'initialize'];
+<<<<<<< HEAD
         if (is_callable($handler)) {
             call_user_func($handler);
         }
@@ -131,12 +140,23 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
 
         if (is_callable($handler)) {
             return call_user_func_array($handler, $this->params);
+=======
+        if (method_exists($this->controller, 'initialize') && is_callable($handler)) {
+            call_user_func($handler);
+        }
+
+        if ($this->isCallable()) {
+            return call_user_func_array([$this->controller, $this->action], $this->params);
+>>>>>>> upstream/master
         } else {
             throw new \Exception(
                 "Trying to dispatch to a non callable item. Controllername = '"
                 . $this->controllerName
+<<<<<<< HEAD
                 . ", Controller = '"
                 . $this->controller
+=======
+>>>>>>> upstream/master
                 . "', Action = '"
                 . $this->action
                 . "'."
@@ -161,7 +181,11 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
         $action = isset($forward['action'])
             ? $forward['action']
             : null;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> upstream/master
         $params = isset($forward['params'])
             ? $forward['params']
             : [];
@@ -170,6 +194,20 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
         $this->setActionName($action);
         $this->setParams($params);
 
+<<<<<<< HEAD
         return $this->dispatch();
+=======
+        if ($this->isCallable()) {
+            return $this->dispatch();
+        } else {
+            throw new \Exception(
+                "Trying to forward to a non callable item. Controllername = '"
+                . $this->controllerName
+                . "', Action = '"
+                . $this->action
+                . "'."
+            );
+        }
+>>>>>>> upstream/master
     }
 }

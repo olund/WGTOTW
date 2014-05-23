@@ -11,7 +11,11 @@
 <script src='<?=$this->url->asset($modernizr)?>'></script>
 </head>
 
+<<<<<<< HEAD
 <body class=''>
+=======
+<body>
+>>>>>>> upstream/master
 
 <div id='wrapper'>
 
