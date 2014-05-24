@@ -1,9 +1,9 @@
-# Logs and databases 
+# Logs and databases
 *.sqlite
 *.log
 
 
-# OS generated files 
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -17,4 +17,4 @@ Thumbs.db
 # Package handling
 composer.json
 composer.lock
-vendor/.git
+vendor/
