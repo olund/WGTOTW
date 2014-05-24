@@ -31,7 +31,7 @@ trait TInjectable
 
 
     /**
-     * Magic method to get and create services. 
+     * Magic method to get and create services.
      * When created it is also stored as a parameter of this object.
      *
      * @param string $service name of class property not existing.
@@ -40,14 +40,29 @@ trait TInjectable
      */
     public function __get($service)
     {
-        $this->$service = $this->di->get($service);
-        return $this->$service;
+        if (!is_object($this->di)) {
+            $log = new \Anax\Log\CLogger();
+            $log->debug('di är nu', [
+                'di type' => gettype($this->di),
+                'di class' => get_class($this->di),
+                'service' => $service,
+            ]);
+            dump($this->di);
+            throw new \Exception("Vafan $this->di är inte ett obj", 1);
+        }
+
+        if (!$this->di->has($service)) {
+            throw new \Exception("Di don't have \$service $service", 1);
+        } else {
+            $this->$service = $this->di->get($service);
+            return $this->$service;
+        }
     }
 
 
 
    /**
-     * Magic method to get and create services as a method call. 
+     * Magic method to get and create services as a method call.
      * When created it is also stored as a parameter of this object.
      *
      * @param string $service   name of class property not existing.

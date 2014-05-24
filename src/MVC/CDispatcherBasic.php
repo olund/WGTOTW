@@ -1,5 +1,4 @@
 <?php
-
 namespace Anax\MVC;
 
 /**
@@ -37,11 +36,7 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
         $name = str_replace(['-', '_'], ' ', $name);
         $name = ucwords($name);
         $name = str_replace(' ', '', $name);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> upstream/master
         return $name;
     }
 
@@ -115,13 +110,8 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
     public function isCallable()
     {
         $handler = [$this->controller, $this->action];
-<<<<<<< HEAD
-        return is_callable($handler);
-=======
         return method_exists($this->controller, $this->action) && is_callable($handler);
->>>>>>> upstream/master
     }
-
 
 
     /**
@@ -132,46 +122,32 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
     public function dispatch()
     {
         $handler = [$this->controller, 'initialize'];
-<<<<<<< HEAD
         if (is_callable($handler)) {
             call_user_func($handler);
         }
-        $handler = [$this->controller, $this->action];
 
-        if (is_callable($handler)) {
-            return call_user_func_array($handler, $this->params);
-=======
-        if (method_exists($this->controller, 'initialize') && is_callable($handler)) {
-            call_user_func($handler);
-        }
+        $handler = [$this->controller, $this->action];
 
         if ($this->isCallable()) {
             return call_user_func_array([$this->controller, $this->action], $this->params);
->>>>>>> upstream/master
         } else {
             throw new \Exception(
                 "Trying to dispatch to a non callable item. Controllername = '"
                 . $this->controllerName
-<<<<<<< HEAD
-                . ", Controller = '"
-                . $this->controller
-=======
->>>>>>> upstream/master
-                . "', Action = '"
+                . ", Action = '"
                 . $this->action
                 . "'."
             );
         }
     }
 
-
     /**
-     * Forward to a controller, action with parameters.
-     *
-     * @param array $forward with details for controller, action, parameters.
-     *
-     * @return mixed result from dispatched controller action.
-     */
+    * Forward to a controller, action with parameters.
+    *
+    * @param array $forward with details for controller, action, parameters.
+    *
+    * @return mixed result from dispatched controller action.
+    */
     public function forward($forward = [])
     {
         $controller = isset($forward['controller'])
@@ -181,11 +157,7 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
         $action = isset($forward['action'])
             ? $forward['action']
             : null;
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> upstream/master
         $params = isset($forward['params'])
             ? $forward['params']
             : [];
@@ -194,9 +166,6 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
         $this->setActionName($action);
         $this->setParams($params);
 
-<<<<<<< HEAD
-        return $this->dispatch();
-=======
         if ($this->isCallable()) {
             return $this->dispatch();
         } else {
@@ -208,6 +177,5 @@ class CDispatcherBasic implements \Anax\DI\IInjectionAware
                 . "'."
             );
         }
->>>>>>> upstream/master
     }
 }

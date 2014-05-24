@@ -32,7 +32,7 @@ class Question extends \Anax\MVC\CDatabaseModel
                 ->join('user', 'phpmvc_user.id = phpmvc_question.user_id');
 
         $this->db->execute([$id]);
-        return $this->db->fetchInto($this);
+        return $this->db->fetchOne();
     }
 
     /**

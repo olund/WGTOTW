@@ -81,10 +81,10 @@ return [
         'modernizr' => 'js/modernizr.js',
 
         // Path to jquery or null to disable
-        'jquery' => '//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js',
+        'jquery' => 'http://code.jquery.com/jquery-latest.min.js',
 
         // Array with javscript-files to include
-        //'javascript_include' => ['js/slideshow.js'],
+        'javascript_include' => ['js/question.js'],
 
         // Use google analytics for tracking, set key or null to disable
         'google_analytics' => null,

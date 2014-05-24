@@ -33,7 +33,7 @@ trait TConfigure
             $options = include $what;
         }
         else {
-            throw new Exception("Configure item '" . htmlentities($what) 
+            throw new Exception("Configure item '" . htmlentities($what)
                 . "' is not an array nor a readable file.");
         }
 

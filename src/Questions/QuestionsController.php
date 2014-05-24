@@ -21,10 +21,20 @@ class QuestionsController implements \Anax\DI\IInjectionAware
         $questions = $this->questions->findAll();
         $this->theme->setTitle('All questions');
 
-        $this->views->add('question/list', [
+        // Markdown wonders.
+        $this->contentToMd($questions);
+
+        $this->views->add('question/list-all', [
             'title' => 'All questions',
             'questions' => $questions,
         ], 'main');
+    }
+
+    private function contentToMd($array = []) {
+        foreach ($array as $key => $value) {
+            $value->content = $this->textFilter->doFilter($value->content, 'shortcode, markdown');
+        }
+        return $array;
     }
 
     public function newAction()
@@ -75,9 +85,6 @@ class QuestionsController implements \Anax\DI\IInjectionAware
 
             // Create slug
             $slug = $this->createSlug($title);
-            // Markdown wonders.
-            // IDK IF I should have this here...
-            $content = $this->textFilter->doFilter($content, 'shortcode, markdown');
 
             // Save the question.
             $this->questions->save([
@@ -104,10 +111,14 @@ class QuestionsController implements \Anax\DI\IInjectionAware
     public function titleAction($id, $slug)
     {
         $question = $this->questions->find($id);
-
         if (!is_object($question)) {
             die ('Cant find the question you are looking for..');
         } else {
+            //dump($question);
+            //$this->contentToMd($question);
+            // To markdown
+            $question->content = $this->textFilter->doFilter($question->content, 'shortcode, markdown');
+
             $this->theme->setTitle($question->title);
             $this->views->add('question/question', [
                 'title' => $question->title,
@@ -120,6 +131,8 @@ class QuestionsController implements \Anax\DI\IInjectionAware
     public function sidebarAction()
     {
         $questions = $this->questions->findLatest(3);
+        $this->contentToMd($questions);
+
         $this->views->add('question/list', [
             'title' => 'Latest Questions',
             'questions' => $questions,
@@ -157,18 +170,20 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             'deleted' => ['datetime'],
         ])->execute();
 
-        $this->questions->save([
-            'user_id' => '1',
-            'title' => 'test question',
-            'content' => 'Who Am I?',
-            'slug' => 'test-question',
-        ]);
-
-        $this->questions->save([
+        $now = date("Y-m-d H:i:s");
+        /*$this->questions->save([
             'user_id' => '2',
             'title' => 'sample question',
-            'content' => 'Who are YOU?',
+            'content' => 'Who are YOU? ```$testCode = test```',
             'slug' => 'sample-question',
+            'created' => $now,
+        ]);*/
+        $this->questions->save([
+            'user_id' => '2',
+            'title' => 'sample question test',
+            'content' => 'Who AM I? ```$testCode = test```',
+            'slug' => 'sample-question-test',
+            'created' => $now,
         ]);
         $this->views->addString('Database is updated:d', 'main');
     }
