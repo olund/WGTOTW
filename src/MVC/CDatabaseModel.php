@@ -39,9 +39,28 @@ class CDatabaseModel implements \Anax\DI\IInjectionAware
         }
     }
 
+    public function saveReal($values = [])
+    {
+        $this->setProperties($values);
+        $values = $this->getProperties();
+
+        if (isset($values['id'])) {
+            return $this->update($values);
+        } else {
+            return $this->create($values);
+        }
+    }
+
+    /**
+     * Create new row.
+     *
+     * @param array $values key/values to save.
+     *
+     * @return boolean true or false if saving went okey.
+     */
     public function create($values)
     {
-        $keys = array_keys($values);
+        $keys   = array_keys($values);
         $values = array_values($values);
 
         $this->db->insert(

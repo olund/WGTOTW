@@ -33,8 +33,8 @@ return [
             'region'   => 'header',
             'template' => 'me/header',
             'data'     => [
-                'siteTitle' => "WGTOTW",
-                'siteTagline' => "We Gonna Take Over The World",
+                'siteTitle' => "Linux Questions",
+                'siteTagline' => "Everything about GNU/Linux",
             ],
             'sort'     => -1
         ],
@@ -66,7 +66,7 @@ return [
         'lang' => 'sv',
 
         // Append this value to each <title>
-        'title_append' => ' | Anax a web template',
+        'title_append' => ' | Linux Questions',
 
         // Stylesheets
         'stylesheets' => ['css/anax-grid/style.php'],

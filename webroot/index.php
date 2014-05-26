@@ -49,11 +49,17 @@ $di->setShared('auth', function() use ($di) {
     return $module;
 });
 
+$di->setShared('TagsController', function () use ($di) {
+    $controller = new \Anax\Tag\TagsController();
+    $controller->setDI($di);
+    return $controller;
+});
+
 $app->views->addString($app->flashy->get(), 'flash');
 
 // Home route
 $app->router->add('', function () use ($app) {
-    $app->theme->setTitle('Me-sida');
+    $app->theme->setTitle('Linux Questions');
     $content = $app->fileContent->get('me.md');
     $content = $app->textFilter->doFilter($content, 'shortcode, markdown');
 
@@ -87,23 +93,6 @@ $app->router->add('redovisning', function () use ($app) {
     ]);
 });
 
-/*
-// Questions route
-$app->router->add('questions', function () use ($app) {
-    $app->theme->setTitle('Questions');
-    $app->views->addString('Questions page', 'main');
-});
-*/
-// Tags route
-$app->router->add('tags', function () use ($app) {
-    $app->theme->setTitle('Tags');
-    $app->views->addString('Tags page', 'main');
-});
-/*
-$app->router->add('users', function () use ($app) {
-    $app->theme->setTitle('Users');
-        $app->views->addString('Users page', 'main');
-});*/
 
 $app->router->add('about', function () use ($app) {
     $app->theme->setTitle('About');

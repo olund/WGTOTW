@@ -80,56 +80,79 @@ class UsersController implements \Anax\DI\IInjectionAware
 
     }
 
-    public function addAction($acronym = null)
+    public function addAction()
     {
         $this->theme->setTitle("Add user");
+        if ($this->auth->isAuthenticated()) {
+            $this->flashy->add('warning', 'You are already signed in!');
+            $url = $this->url->create('');
+            $this->response->redirect($url);
+            exit();
+        }
 
-        if (!isset($acronym)) {
-            $form = $this->form;
-            $form = $form->create([], [
-                'acronym' => [
-                    'type'        => 'text',
-                    'label'       => 'Username or ID:',
-                    'required'    => true,
-                    'validation'  => ['not_empty'],
-                ],
-                'submit' => [
-                    'type'      => 'submit',
-                    'callback'  => function ($form) {
-                        $form->saveInSession = true;
-                        return true;
-                    }
-                ],
-            ]);
+        $form = $this->form;
+        $form = $form->create([], [
+            'name' => [
+                'type' => 'text',
+                'placeholder' => 'Name...',
+                'required' => true,
+                'validation' => ['not_empty'],
+            ],
+            'acronym' => [
+                'type'        => 'text',
+                'placeholder' => 'Username...',
+                'required'    => true,
+                'validation' => ['not_empty'],
+            ],
+            'email' => [
+                'type'      => 'text',
+                'placeholder' => 'Email...',
+                'required' => true,
+                'validation' => ['not_empty'],
+            ],
+            'password' => [
+                'type' => 'password',
+                'placeholder' => 'Password...',
+                'required' => true,
+                'validation' => ['not_empty'],
+            ],
+            'submit' => [
+                'type'      => 'submit',
+                'callback'  => function ($form) {
+                    $form->saveInSession = true;
+                    return true;
+                }
+            ],
+        ]);
 
-            $status = $form->check();
+        $status = $form->check();
 
-            if ($status === true) {
-                $acronym = $_SESSION['form-save']['acronym']['value'];
-                $url = $this->url->create('users/add/' . $acronym);
-                session_unset($_SESSION['form-save']);
-                $this->response->redirect($url);
-
-            }
-            $this->views->add('me/page', [
-                'content' => $form->getHTML(),
-            ]);
-
-        } else {
-            $now = date("Y-m-d h:i:s");
+        if ($status === true) {
+            $name = $_SESSION['form-save']['name']['value'];
+            $acronym = $_SESSION['form-save']['acronym']['value'];
+            $email = $_SESSION['form-save']['email']['value'];
+            $password = $_SESSION['form-save']['password']['value'];
+            $this->session->noSet('form-save');
+            $now = date("Y-m-d H:i:s");
 
             $this->users->save([
-                'acronym' => $acronym,
-                'email' => $acronym . '@mail.se',
-                'name' => 'Mr/Mrs ' . $acronym,
-                'password' => password_hash($acronym, PASSWORD_DEFAULT),
+                'acronym' => htmlentities(strip_tags($acronym)),
+                'email' => htmlentities(strip_tags($email)),
+                'name' => htmlentities(strip_tags($name)),
+                'password' => password_hash($password, PASSWORD_DEFAULT),
                 'created' => $now,
                 'active' => $now,
             ]);
-
-            $url = $this->url->create('users/id/' . $this->users->id);
+            $this->flashy->success("Your account was successfully registered!");
+            $this->auth->authenticate($acronym, $password);
+            $url = $this->url->create('');
             $this->response->redirect($url);
         }
+
+        $this->views->add('me/page', [
+            'title' => 'Register account',
+            'content' => $form->getHTML(),
+        ]);
     }
 
     public function deleteAction ($id = null)
@@ -408,13 +431,13 @@ class UsersController implements \Anax\DI\IInjectionAware
             }
             $this->response->redirect($url);
         }
-        $flash = $this->flashy->get();
-
         $this->views->add('me/page', [
             'title' => 'Login',
             'content' => $this->form->getHTML(),
-        ]);
+        ],'main');
 
+        $url = $this->url->create('users/add');
+        $this->views->addString("<a href='{$url}'>Register here!</a>", 'sidebar');
     }
 
     public function logoutAction()

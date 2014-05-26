@@ -10,6 +10,9 @@ class QuestionsController implements \Anax\DI\IInjectionAware
     {
         $this->questions = new \Anax\Questions\Question();
         $this->questions->setDi($this->di);
+
+        $this->tags = new \Anax\Tag\Tag();
+        $this->tags->setDI($this->di);
     }
 
     /**
@@ -30,16 +33,20 @@ class QuestionsController implements \Anax\DI\IInjectionAware
         ], 'main');
     }
 
-    private function contentToMd($array = []) {
-        foreach ($array as $key => $value) {
-            $value->content = $this->textFilter->doFilter($value->content, 'shortcode, markdown');
+    private function contentToMd($array) {
+        if (is_array($array)) {
+            foreach ($array as $key => $value) {
+                $value->content = $this->textFilter->doFilter($value->content, 'shortcode, markdown');
+            }
+        } else {
+            $array->content = $this->textFilter->doFilter();
         }
+
         return $array;
     }
 
     public function newAction()
     {
-
         // Check if the user is authenticated
         if (!$this->auth->isAuthenticated()) {
             $this->flashy->error('Please login before posing messages');
@@ -63,6 +70,11 @@ class QuestionsController implements \Anax\DI\IInjectionAware
                 'required' => true,
                 'validation' => ['not_empty'],
             ],
+            'tags' => [
+                'type' => 'text',
+                'placeholder' => 'tag1, tag2, tag3 and so on',
+                'required' => false,
+            ],
             'submit' => [
                 'type' => 'submit',
                 'callback' => function ($form) {
@@ -76,7 +88,7 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             // Save the values from session
             $title = $_SESSION['form-save']['title']['value'];
             $content = $_SESSION['form-save']['content']['value'];
-
+            $tags = $_SESSION['form-save']['tags']['value'];
             // Unset the session
             $this->session->noSet('form-save');
 
@@ -86,14 +98,26 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             // Create slug
             $slug = $this->createSlug($title);
 
+            if (isset($tags)) {
+                $tags = htmlentities(strip_tags($tags));
+                $tags =strtolower($tags);
+                $tags = str_replace(' ', '', $tags);
+                $tags = str_replace('#', '', $tags);
+                $tags = explode(',', $tags);
+            }
+            // Check if the tag already exist.
+            $this->tags->check($tags);
+
             // Save the question.
             $this->questions->save([
                 'user_id' => $this->session->get('user')->id,
                 'title' => $title,
                 'content' => $content,
                 'slug' => $slug,
+                'tags' => serialize($tags),
                 'created' => $now,
             ]);
+
 
             // Flash the success
             $this->flashy->success('The question was posted!');
@@ -110,22 +134,18 @@ class QuestionsController implements \Anax\DI\IInjectionAware
 
     public function titleAction($id, $slug)
     {
-        $question = $this->questions->find($id);
-        if (!is_object($question)) {
-            die ('Cant find the question you are looking for..');
-        } else {
-            //dump($question);
-            //$this->contentToMd($question);
-            // To markdown
-            $question->content = $this->textFilter->doFilter($question->content, 'shortcode, markdown');
+        $question = $this->questions->getQuestionWithComments($id);
+        $question[0]['question']->content = $this->textFilter->doFilter($question[0]['question']->content, 'shortcode, markdown');
 
-            $this->theme->setTitle($question->title);
-            $this->views->add('question/question', [
-                'title' => $question->title,
-                'question' => $question,
-            ], 'main');
+        foreach ($question[0]['answers'] as $key => &$value) {
+            $value['answers']['answer'] = $this->textFilter->doFilter($value['answers']['answer'], 'shortcode, markdown');
         }
 
+        $this->theme->setTitle($question[0]['question']->title);
+        $this->views->add('question/question', [
+            'title' => $question[0]['question']->title,
+            'question' => $question,
+        ], 'main');
     }
 
     public function sidebarAction()
@@ -156,36 +176,191 @@ class QuestionsController implements \Anax\DI\IInjectionAware
     {
         $this->theme->setTitle('Setup');
 
-        // SQL...
-        $this->db->dropTableIfExists('question')->execute();
+        // SQL... Skapa tabeller och grejjer
 
+        // QUESTION TABLE
+        $this->db->dropTableIfExists('question')->execute();
         $this->db->createTable('question', [
             'id' => ['integer', 'primary key', 'not null', 'auto_increment'],
             'user_id' => ['integer', 'not null'],
             'title' => ['varchar(100)', 'not null'],
             'content' => ['text', 'not null'],
             'slug'    => ['varchar(100)', 'not null'],
+            'tags' => ['text'],
+            'created' => ['datetime'],
+            'updated' => ['datetime'],
+            'deleted' => ['datetime'],
+        ])->execute();
+
+
+
+        // ANSWER TABLE
+        $this->db->dropTableIfExists('answer')->execute();
+        $this->db->createTable('answer',[
+            'id' => ['integer', 'primary key', 'not null', 'auto_increment'],
+            'user_id' => ['integer', 'not null'],
+            'q_id' => ['integer', 'not null'],
+            'content' => ['text', 'not null'],
+            'created' => ['datetime'],
+            'updated' => ['datetime'],
+            'deleted' => ['datetime'],
+        ])->execute();
+
+        // Q_COMMENT TABLE
+        $this->db->dropTableIfExists('q_comment')->execute();
+        $this->db->createTable('q_comment', [
+            'id' => ['integer', 'primary key', 'not null', 'auto_increment'],
+            'user_id' => ['integer', 'not null'],
+            'q_id' => ['integer', 'not null'],
+            'content' => ['text', 'not null'],
+            'created' => ['datetime'],
+            'updated' => ['datetime'],
+            'deleted' => ['datetime'],
+        ])->execute();
+
+        // A_COMMENT TABLE
+        $this->db->dropTableIfExists('a_comment')->execute();
+        $this->db->createTable('a_comment', [
+            'id' => ['integer', 'primary key', 'not null', 'auto_increment'],
+            'user_id' => ['integer', 'not null'],
+            'a_id' => ['integer', 'not null'],
+            'content' => ['text', 'not null'],
             'created' => ['datetime'],
             'updated' => ['datetime'],
             'deleted' => ['datetime'],
         ])->execute();
 
         $now = date("Y-m-d H:i:s");
-        /*$this->questions->save([
-            'user_id' => '2',
-            'title' => 'sample question',
-            'content' => 'Who are YOU? ```$testCode = test```',
-            'slug' => 'sample-question',
-            'created' => $now,
-        ]);*/
+
         $this->questions->save([
             'user_id' => '2',
-            'title' => 'sample question test',
-            'content' => 'Who AM I? ```$testCode = test```',
-            'slug' => 'sample-question-test',
+            'title' => 'Problems with the root account',
+            'content' => 'How do i get access to the root account?
+            ```su root```
+            does not work...',
+            'slug' => 'can-you-help-me',
             'created' => $now,
         ]);
         $this->views->addString('Database is updated:d', 'main');
+    }
+
+    public function answerAction($id, $slug)
+    {
+        if ($id == null || $slug == null) {
+            die('Id and slug cant be null u fool');
+        }
+
+         if (!$this->auth->isAuthenticated()) {
+            $this->flashy->error('Please sign in!');
+            $url = $this->url->create('users/login');
+            $this->response->redirect($url);
+            exit();
+        }
+
+        $this->theme->setTitle("Answer");
+
+        $form = $this->form;
+        $form = $form->create([], [
+            'answer' => [
+                'type' => 'textarea',
+                'placeholder' => 'The answer...',
+                'required' => true,
+                'validation' => ['not_empty'],
+            ],
+            'submit' => [
+                'type' => 'submit',
+                'callback' => function ($form) {
+                    $form->saveInSession = true;
+                    return true;
+                }
+            ],
+        ]);
+
+        if ($form->check()) {
+            $content = $_SESSION['form-save']['answer']['value'];
+            $this->session->noSet('form-save');
+            $now = date("Y-m-d H:i:s");
+
+            // Save
+            $this->questions->saveAnswer([
+                'user_id' => $this->session->get('user')->id,
+                'question_id' => $id,
+                'content' => $content,
+                'created' => $now,
+            ]);
+
+            $this->flashy->success('Your answer was posted!');
+            $url = $this->url->create('questions/title/' . $id . '/' . $slug);
+            $this->response->redirect($url);
+        }
+
+        $this->views->add('default/page', [
+            'title' => 'New answer',
+            'content' => $form->getHTML(),
+        ], 'main');
+
+    }
+
+    public function commentAction($type, $id, $q_id)
+    {
+        if ($type == null || $id == null || !is_string($type)) {
+            die('wrong params');
+            exit();
+        }
+        if ($type != 'a' && $type != 'q') {
+            die('not answer or question');
+            exit();
+        }
+
+         if (!$this->auth->isAuthenticated()) {
+            $this->flashy->error('Please sign in!');
+            $url = $this->url->create('users/login');
+            $this->response->redirect($url);
+            exit();
+        }
+
+        $this->theme->setTitle("Comment");
+
+        $form = $this->form;
+
+        $form = $form->create([], [
+            'comment' => [
+                'type' => 'textarea',
+                'placeholder' => 'The Comment...',
+                'required' => true,
+                'validation' => ['not_empty'],
+            ],
+            'submit' => [
+                'type'      => 'submit',
+                'callback'  => function($form) {
+                    $form->saveInSession = true;
+                    return true;
+                }
+            ],
+        ]);
+
+        if ($form->check()) {
+            $content = $_SESSION['form-save']['comment']['value'];
+            $this->session->noSet('form-save');
+            $now = date("Y-m-d H:i:s");
+
+            $this->questions->saveComment([
+                'user_id' => $this->session->get('user')->id,
+                'reference_id' => $q_id,
+                'content' => $content,
+                'created' => $now,
+            ], $type);
+            $this->flashy->success("Your comment was posted!");
+            $slug = $this->questions->find($id)->slug;
+            $url = $this->url->create('questions/title/' . $id . '/' . $slug);
+            $this->response->redirect($url);
+        }
+
+
+        $this->views->add('default/page', [
+            'title' => 'New comment',
+            'content' => $form->getHTML(),
+        ], 'main');
     }
 
 
