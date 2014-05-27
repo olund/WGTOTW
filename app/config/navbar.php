@@ -5,19 +5,15 @@
  */
 return [
 
-    // Use for styling the menu
     'class' => 'navbar',
 
-    // Here comes the menu strcture
     'items' => [
 
-        // This is a menu item
         'home'  => [
             'text'  => '<i class="fa fa-home"></i> Home',
             'url'   => '',
             'title' => 'Home'
         ],
-
 
         'questions' => [
             'text'  => '<i class="fa fa-question-circle"></i> Questions',
@@ -32,9 +28,9 @@ return [
         ],
 
         'users' => [
-            'text'  => '<i class="fa fa-user"></i> Användare',
+            'text'  => '<i class="fa fa-user"></i> Users',
             'url'   => 'users',
-            'title' => 'Användare',
+            'title' => 'Users',
         ],
 
         // This is a menu item

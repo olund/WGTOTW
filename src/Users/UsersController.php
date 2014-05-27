@@ -290,32 +290,6 @@ class UsersController implements \Anax\DI\IInjectionAware
     }
 
 
-    public function saveAction()
-    {
-
-        $isPosted = $this->request->getPost('doSave');
-
-        if (!$isPosted) {
-            $this->response->redirect($this->request->getPost('redirect'));
-        }
-
-        $id = $this->request->getPost('id');
-        $email = $this->request->getPost('email');
-        $name = $this->request->getPost('name');
-
-        $user = $this->users->find($id);
-
-        $now = date("Y-m-d h:i:s");
-
-        $user->email = $email;
-        $user->name = $name;
-        $user->updated = $now;
-        $user->save();
-
-        $url = $this->url->create('users/id/' . $id);
-        $this->response->redirect($url);
-    }
-
     public function softUndoAction($id)
     {
         if (!isset($id)) {
@@ -337,7 +311,7 @@ class UsersController implements \Anax\DI\IInjectionAware
     // SOFT DELETE kollar om aktiv är null..
     public function softDeletedAction()
     {
-        $this->theme->setTitle('Papperskorgen');
+        $this->theme->setTitle('Pthiserskorgen');
 
         $all = $this->users->query()
         ->where('deleted IS NOT NULL')
@@ -477,15 +451,17 @@ class UsersController implements \Anax\DI\IInjectionAware
         }
 
 
-        $all = [];
-        $all['questions'] = $this->questions->findQuestionsByUser($user->id);
-        $all['answers'] = $this->questions->findAnswersByUser($user->id);
-        $all['comments'] = $this->questions->findCommentsByUser($user->id);
+        $questions = $this->questions->findQuestionsByUser($user->id);
+        $answers = $this->questions->findAnswersByUser($user->id);
+        $comments = $this->questions->findCommentsByUser($user->id);
+
         $this->views->add('users/profile', [
             'title' => $title,
             'user' => $user,
             'edit' => $edit,
-            'all' => $all,
+            'questions' => $questions,
+            'answers' => $answers,
+            'comments' => $comments,
         ], 'main');
 
 
@@ -497,5 +473,44 @@ class UsersController implements \Anax\DI\IInjectionAware
             'answers' => $answers,
         ], 'sidebar');
 
+    }
+
+    public function setupAction()
+    {
+        // Drop table if exist
+        $this->db->dropTableIfExists('user')->execute();
+
+        // Create a user table
+        $this->db->createTable('user', [
+            'id' => ['integer', 'primary key', 'not null', 'auto_increment'],
+            'acronym' => ['varchar(20)', 'unique', 'not null'],
+            'email' => ['varchar(80)'],
+            'name' => ['varchar(80)'],
+            'password' => ['varchar(255)'],
+            'post' => ['integer'],
+            'created' => ['datetime'],
+            'updated' => ['datetime'],
+            'deleted' => ['datetime'],
+            'active' => ['datetime'],
+        ])->execute();
+
+        // Add 2 users
+        $this->db->insert(
+            'user',
+            ['acronym', 'email', 'name', 'password', 'created', 'active']
+        );
+
+        // Get the date?
+        $now = date("Y-m-d h:i:s");
+
+        // Execute the query
+        $this->db->execute([
+            'admin',
+            'admin@test.se',
+            'Administrator',
+            password_hash('admin', PASSWORD_DEFAULT),
+            $now,
+            $now
+        ]);
     }
 }

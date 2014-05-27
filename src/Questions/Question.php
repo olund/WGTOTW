@@ -69,7 +69,8 @@ class Question extends \Anax\MVC\CDatabaseModel
 
     public function findAnswersByUser($id, $limit = 1000)
     {
-        $this->db->select('phpmvc_answer.id as id,
+        $this->db->select('phpmvc_answer.id as a_id,
+            phpmvc_question.id as id,
             phpmvc_user.acronym as a_acronym,
             phpmvc_answer.content as a_content,
             phpmvc_question.slug as slug')
@@ -85,18 +86,20 @@ class Question extends \Anax\MVC\CDatabaseModel
 
     public function findCommentsByUser($id)
     {   // Get question comments
-        $this->db->select()
+        $this->db->select('*, phpmvc_q_comment.content as q_content, phpmvc_question.id as ffs')
             ->from('q_comment')
             ->join('user', 'phpmvc_user.id = phpmvc_q_comment.user_id')
+            ->join('question', 'phpmvc_question.user_id = phpmvc_user.id')
             ->where('phpmvc_q_comment.user_id = ?');
         $this->db->execute([$id]);
 
         $q_comments = $this->db->fetchAll();
 
         // Get answer comments
-        $this->db->select()
+        $this->db->select('*, phpmvc_a_comment.content as q_content, phpmvc_question.id as ffs')
             ->from('a_comment')
             ->join('user', 'phpmvc_user.id = phpmvc_a_comment.user_id')
+            ->join('question', 'phpmvc_question.user_id = phpmvc_user.id')
             ->where('phpmvc_a_comment.user_id = ?');
         $this->db->execute([$id]);
         $a_comments = $this->db->fetchAll();

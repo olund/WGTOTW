@@ -13,6 +13,9 @@ class QuestionsController implements \Anax\DI\IInjectionAware
 
         $this->tags = new \Anax\Tag\Tag();
         $this->tags->setDI($this->di);
+
+        $this->users = new \Anax\Users\User();
+        $this->users->setDI($this->di);
     }
 
     /**
@@ -108,6 +111,15 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             // Check if the tag already exist.
             $this->tags->check($tags);
 
+            $id = $this->session->get('user')->id;
+            // update user
+            $user = $this->users->find($id);
+            $user->post++;
+            $user->save([
+                'id' => $user->id,
+                'post' => $user->post
+            ]);
+
             // Save the question.
             $this->questions->save([
                 'user_id' => $this->session->get('user')->id,
@@ -158,6 +170,8 @@ class QuestionsController implements \Anax\DI\IInjectionAware
             'questions' => $questions,
         ], 'sidebar');
     }
+
+
 
     private function createSlug($str)
     {
@@ -233,7 +247,7 @@ class QuestionsController implements \Anax\DI\IInjectionAware
         $now = date("Y-m-d H:i:s");
 
         $this->questions->save([
-            'user_id' => '2',
+            'user_id' => '1',
             'title' => 'Problems with the root account',
             'content' => 'How do i get access to the root account?
             ```su root```

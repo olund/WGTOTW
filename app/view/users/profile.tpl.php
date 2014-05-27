@@ -19,15 +19,55 @@
     </div>
 
     <div class="all">
-        <?php if (isset($all)): ?>
-            <?php dump($all); ?>
-            <?php foreach ($all as $key => $value): ?>
-                <?php // Gör något här sen // ?>
-            <?php endforeach ?>
+        <?php if (isset($questions)): ?>
+            <div class="all-questions">
+                <h4>All Question Posted</h4>
+                <hr>
+                <ul>
+                <?php foreach ($questions as $key => $question): ?>
+                    <li><a href="<?=$this->url->create('questions/title/' . $question->q_id . '/' . $question->slug)?>"><?=$question->title?></a></li>
+                <?php endforeach ?>
+                </ul>
+            </div>
+
         <?php else: ?>
-            <p>Nothing posted yet..<p>
+            <p>Nothing question posted<p>
         <?php endif ?>
 
+        <?php if (isset($answers)): ?>
+        <div class="all-answers">
+            <h4>All Answers Posted</h4>
+            <hr>
+            <ul>
+            <?php foreach ($answers as $key => $answer): ?>
+                <li>
+                    <a href="<?=$this->url->create('questions/title/' . $answer->id . '/' . $answer->slug)?>"><?=$answer->a_content?></a>
+                </li>
+            <?php endforeach ?>
+            </ul>
+        </div>
+        <?php else: ?>
+            <p>Nothing answers posted<p>
+        <?php endif ?>
+
+        <?php if (isset($comments)): ?>
+            <div class="all-comments">
+            <h4>All Comments Posted</h4>
+            <hr>
+            <ul>
+            <?php foreach ($comments as $key => $comment): ?>
+                <?php foreach ($comment as $c): ?>
+                    <li>
+                        <a href="<?=$this->url->create('questions/title/' . $c->ffs . '/' . $c->slug)?>"><?=$c->q_content?></a>
+                    </li>
+                <?php endforeach ?>
+
+            <?php endforeach ?>
+            </ul>
+        </div>
+        <?php else: ?>
+            <p>Nothing answers posted<p>
+        <?php endif ?>
     </div>
 
 

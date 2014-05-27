@@ -10,6 +10,9 @@ class TagsController implements \Anax\DI\IInjectionAware
     {
         $this->tags = new \Anax\Tag\Tag();
         $this->tags->setDI($this->di);
+
+        $this->users = new \Anax\Users\User();
+        $this->users->setDI($this->di);
     }
 
     public function indexAction()
@@ -51,5 +54,25 @@ class TagsController implements \Anax\DI\IInjectionAware
         ])->execute();
 
         $this->views->addString('<h1>Tag database was reconfigured!</h1>', 'main');
+    }
+
+    public function triptychAction()
+    {
+        $tags = $this->tags->findMostPopular(5);
+        $users = $this->users->findMostActive(5);
+        $this->views->addString('<h4>Most active users</h4>', 'triptych-1');
+        foreach ($users as $key => $user) {
+            $url = $this->url->create('users/profile/' . $user->acronym);
+            $this->views->addString("<p><a href='{$url}'>{$user->acronym}</a></p>", 'triptych-1');
+        }
+
+        //die(dump($users));
+
+        $this->views->addString('<h4>Popular tags</h4>', 'triptych-2');
+        foreach ($tags as $key => $tag) {
+            $url = $this->url->create('tags/tag/' . $tag->text);
+            $this->views->addString("<p><a href='{$url}'>#{$tag->text} x {$tag->uses}</a></p>", 'triptych-2');
+        }
+
     }
 }

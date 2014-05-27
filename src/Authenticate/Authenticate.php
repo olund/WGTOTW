@@ -4,6 +4,11 @@ namespace Anax\Authenticate;
 
 class Authenticate extends \Anax\MVC\CDatabaseModel
 {
+    public $dbName;
+    public $id;
+    public $username;
+    public $loggedIn;
+
     public function __construct($dbName)
     {
         $this->dbName = $dbName;
@@ -42,6 +47,11 @@ class Authenticate extends \Anax\MVC\CDatabaseModel
             $success = true;
         }
         return $success;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function isAuthenticated()

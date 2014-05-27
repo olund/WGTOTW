@@ -38,6 +38,17 @@ class Tag extends \Anax\MVC\CDatabaseModel
         return $this->db->fetchInto($this);
     }
 
+    public function findMostPopular($limit)
+    {
+        $this->db->select()
+            ->from($this->getSource())
+            ->orderBy('phpmvc_tag.uses DESC')
+            ->limit($limit);
+
+        $this->db->execute([$limit]);
+        return $this->db->fetchAll();
+    }
+
     public function getAllQuestionWithTag($theTag)
     {
         $tag = $this->findByTag($theTag);

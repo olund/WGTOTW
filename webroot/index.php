@@ -68,6 +68,11 @@ $app->router->add('', function () use ($app) {
         'action' => 'sidebar',
     ]);
 
+    $app->dispatcher->forward([
+        'controller' => 'tags',
+        'action' => 'triptych',
+    ]);
+
     $app->views->add('me/page', [
         'content' => $content,
     ], 'main');
