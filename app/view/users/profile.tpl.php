@@ -17,6 +17,20 @@
         <h4>Email</h4>
         <p><?=$user->email?></p>
     </div>
+
+    <div class="all">
+        <?php if (isset($all)): ?>
+            <?php dump($all); ?>
+            <?php foreach ($all as $key => $value): ?>
+                <?php // Gör något här sen // ?>
+            <?php endforeach ?>
+        <?php else: ?>
+            <p>Nothing posted yet..<p>
+        <?php endif ?>
+
+    </div>
+
+
 <? else : ?>
     <p>User not found!</p>
 <? endif; ?>

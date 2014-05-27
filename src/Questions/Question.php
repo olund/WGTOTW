@@ -50,6 +50,65 @@ class Question extends \Anax\MVC\CDatabaseModel
         return $this->db->fetchInto($this);
     }
 
+    public function findQuestionsByUser($id, $limit = 1000)
+    {
+        $this->db->select('
+                phpmvc_question.slug,
+                phpmvc_question.title,
+                phpmvc_question.id AS q_id,
+                phpmvc_question.created AS created
+            ')
+            ->from($this->getSource())
+            ->join('user', 'phpmvc_user.id = phpmvc_question.user_id')
+            ->where('phpmvc_user.id = ?')
+            ->orderBy('phpmvc_question.id DESC')
+            ->limit($limit);
+        $this->db->execute([$id]);
+        return $this->db->fetchAll();
+    }
+
+    public function findAnswersByUser($id, $limit = 1000)
+    {
+        $this->db->select('phpmvc_answer.id as id,
+            phpmvc_user.acronym as a_acronym,
+            phpmvc_answer.content as a_content,
+            phpmvc_question.slug as slug')
+            ->from('answer')
+            ->join('user', 'phpmvc_user.id = phpmvc_answer.user_id')
+            ->join('question', 'phpmvc_answer.q_id = phpmvc_question.id')
+            ->where('phpmvc_user.id = ?')
+            ->orderBy('id DESC')
+            ->limit($limit);
+        $this->db->execute([$id]);
+        return $this->db->fetchAll();
+    }
+
+    public function findCommentsByUser($id)
+    {   // Get question comments
+        $this->db->select()
+            ->from('q_comment')
+            ->join('user', 'phpmvc_user.id = phpmvc_q_comment.user_id')
+            ->where('phpmvc_q_comment.user_id = ?');
+        $this->db->execute([$id]);
+
+        $q_comments = $this->db->fetchAll();
+
+        // Get answer comments
+        $this->db->select()
+            ->from('a_comment')
+            ->join('user', 'phpmvc_user.id = phpmvc_a_comment.user_id')
+            ->where('phpmvc_a_comment.user_id = ?');
+        $this->db->execute([$id]);
+        $a_comments = $this->db->fetchAll();
+
+        $all = [];
+        $all['question_comments'] = $q_comments;
+        $all['answers_comments'] = $a_comments;
+        return $all;
+
+    }
+
+
     /**
      * Find the latest questions..
      * @param  int $limit the limit
@@ -188,8 +247,6 @@ class Question extends \Anax\MVC\CDatabaseModel
 
     public function saveComment($values = [], $type)
     {
-        // Denna blir fel.
-
         if ($type == 'a') {
             $this->db->insert(
                 $type . '_comment',

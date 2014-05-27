@@ -28,6 +28,41 @@ class Tag extends \Anax\MVC\CDatabaseModel
         return $this->db->fetchOne();
     }
 
+    public function findByTag($tag)
+    {
+        $this->db->select()
+                 ->from($this->getSource())
+                 ->where('text = ?');
+
+        $this->db->execute([$tag]);
+        return $this->db->fetchInto($this);
+    }
+
+    public function getAllQuestionWithTag($theTag)
+    {
+        $tag = $this->findByTag($theTag);
+
+        // Get everything
+        $this->db->select('phpmvc_question.id, phpmvc_question.slug, phpmvc_question.title, phpmvc_question.tags, phpmvc_question.content, phpmvc_user.acronym')
+            ->from('question')
+            ->join('user', 'phpmvc_user.id = phpmvc_question.user_id');
+        $this->db->execute();
+        $all = $this->db->fetchAll();
+
+        $questions = [];
+        foreach ($all as $one) {
+            $tags = unserialize($one->tags);
+
+            if (!is_bool($tags)) {
+                if (in_array($tag->text, $tags)) {
+                    $questions[] = $one;
+                }
+            }
+        }
+
+        return $questions;
+    }
+
     public function check($tags = [])
     {
         if (!empty($tags)) {
@@ -50,7 +85,7 @@ class Tag extends \Anax\MVC\CDatabaseModel
     }
 
     public function addTag($tag)
-    {
+    {   // Något jävla fel på denna funktionen.
         if ($tag != " ") {
             $this->saveReal([
                 'text' => $tag,

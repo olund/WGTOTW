@@ -26,9 +26,12 @@ class TagsController implements \Anax\DI\IInjectionAware
     {
         $this->theme->setTitle($title);
         $tag = $this->tags->find($title);
-        $this->views->add('tags/list', [
+
+        $questions = $this->tags->getAllQuestionWithTag($title);
+        $this->views->add('tags/tag', [
             'title' => $title,
             'tags' => $tag,
+            'questions' => $questions,
         ]);
     }
 

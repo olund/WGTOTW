@@ -15,6 +15,9 @@ class UsersController implements \Anax\DI\IInjectionAware
         $this->auth->setDI($this->di);
 
         $this->flashy = new \Anax\Flash\CFlash();
+
+        $this->questions = new \Anax\Questions\Question();
+        $this->questions->setDi($this->di);
     }
 
     public function indexAction()
@@ -254,7 +257,6 @@ class UsersController implements \Anax\DI\IInjectionAware
                 'type' => 'password',
                 'label' => 'New Password',
                 'required' => false,
-                'validation' => ['not_empty'],
             ],
 
             'submit' => [
@@ -475,14 +477,20 @@ class UsersController implements \Anax\DI\IInjectionAware
         }
 
 
-        $answers = null;
-        $questions = null;
+        $all = [];
+        $all['questions'] = $this->questions->findQuestionsByUser($user->id);
+        $all['answers'] = $this->questions->findAnswersByUser($user->id);
+        $all['comments'] = $this->questions->findCommentsByUser($user->id);
         $this->views->add('users/profile', [
             'title' => $title,
             'user' => $user,
             'edit' => $edit,
+            'all' => $all,
         ], 'main');
 
+
+        $questions = $this->questions->findQuestionsByUser($user->id,3);
+        $answers = $this->questions->findAnswersByUser($user->id,3);
         $this->views->add('users/profile-sidebar', [
             'user' => $user,
             'questions' => $questions,
