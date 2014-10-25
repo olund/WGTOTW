@@ -97,7 +97,7 @@ class CSession
         return isset($_SESSION[$key]);
     }
 
-      /**
+    /**
      * Unset values in session.
      *
      * @param string $key   in session variable.

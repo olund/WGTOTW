@@ -152,6 +152,17 @@ class QuestionsController implements \Anax\DI\IInjectionAware
         foreach ($question[0]['answers'] as $key => &$value) {
             $value['answers']['answer'] = $this->textFilter->doFilter($value['answers']['answer'], 'shortcode, markdown');
         }
+        foreach ($question[0]['comments'] as $key => &$value) {
+            //die(dump($question));
+            $value->q_comment = $this->textFilter->doFilter($value->q_comment, 'shortcode, markdown');
+
+        }
+
+        foreach ($question[0]['answers'] as $key => &$value) {
+            foreach ($value['comments'] as $k => &$val) {
+                $val->a_content = $this->textFilter->doFilter($val->a_content, 'shortcode, markdown');
+            }
+        }
 
         $this->theme->setTitle($question[0]['question']->title);
         $this->views->add('question/question', [

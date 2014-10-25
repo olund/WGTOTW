@@ -42,7 +42,7 @@ class Authenticate extends \Anax\MVC\CDatabaseModel
             $user->username = $res[0]->acronym;
             $user->loggedIn = true;
 
-            $this->session->noSet('user', $user);
+            $this->session->noSet('user');
             $this->session->set('user', $user);
             $success = true;
         }
@@ -56,12 +56,13 @@ class Authenticate extends \Anax\MVC\CDatabaseModel
 
     public function isAuthenticated()
     {
-        $ret = false;
         $user = $this->session->get('user');
-        if (isset($user)) {
-            $ret = true;
+        if (is_object($user)) {
+            if (isset($user->username)) {
+                return true;
+            }
         }
-        return $ret;
+        return false;
     }
 
     public function logout()

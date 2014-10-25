@@ -25,6 +25,8 @@ class CommentsController implements \Anax\DI\IInjectionAware
     {
         //$this->initialize();
         $all = $this->comments->findAll();
+        // markdown
+        $this->textFilter->doFilter($all, 'shortcode, markdown');
         $this->views->add('comments/comments', [
             'comments' => $all,
         ], 'sidebar');

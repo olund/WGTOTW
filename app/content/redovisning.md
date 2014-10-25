@@ -270,3 +270,118 @@ private function setKey($key, $value)
 }
 ```
 
+
+
+Kmom06: Verktyg och CI
+----------------------
+
+###Introduktion:
+
+I det här kursmomentet fick jag arbeta med grunder av automagisk testning och CI. Jag fick skriva testkod med PHPUnit och använda Scrutinzer för att få code quality och code coverage.
+Jag arbetade även med Travis för att få till CI.
+
+CFlash fick 10 i kvalité, Build passing och Code coverage på 98%.
+Jag fick 10 på Quality, Build passing och Coverage på 98% enligt bilden
+men enligt [scrutinzer](https://scrutinizer-ci.com/g/olund/Flash/code-structure/master/class/olund%5CFlash%5CCFlash) fick jag 100%.
+Dock har jag 5 minor issues enligt scrutinizer, han tror min setKey method "seems useless", även fast den gör sitt jobb korrekt (sätter rätt session osv).
+
+
+###Tidigare erfarenhet
+Jag har ingen tidigare erfarenhet av testning eller Continous Intergration men har vetat att PHPUnit har funnits en bra stund.
+GitHub arbetar jag bekvämt med, fast det blir nog lite googling när man får merge problem och liknande.
+
+
+
+###Testfall med PHPUnit
+Övningen hjälpte mig att komma igång med det uppstod väldigt många problem på kommandoraden.
+Det uppstod problem med att ladda min CFlash klass och jag var helt säker på att jag hade gjort rätt, alla andra hade ju gjort likadant.
+Problemet var att autoloadern inte registrerade mitt namespace.
+
+Jag löste problemet med ```$prefix = 'olund\\';``` i autoloader filen.
+
+
+Innan jag löste problemet var jag förbannad på att klassen aldrig laddades så jag använde istället
+```require``` men denna lösningen var ej okej enligt mig. Om jag skulle testa flera filer vill man ju att dom ska laddas automagiskt med autoloadern..
+
+
+Eftersom min CFlash innehåller väldig lite kod blev testfallen inte så långa heller.
+Jag hade en metod som testade Clear metoden, en test metod som hämtade alla "flashar" och metod som hämtade med tomt resultat.
+
+Jag tyckte det var ganska svårt att skriva testfall, men jag gillar tänket att skriva testfall även fast jag tycker det blir rätt svårt/tidskrävande.
+
+
+###Travis
+FYFAN vad det tog lång tid innan den uppdaterade. Jag blev helt ursinnig när jag skulle använda Travis, hade igång datorn hela natten men travis helvettet ville inte uppdatera sig. Efter 3e försöket blev det en build passed och känslan var gudomlig.
+Här får man göra rätt från början, första försöket hade jag skrivit fel i ```.scrutinizer.yml```filen. Andra försökte lyckades jag med ```Job Cancelled``` eftersom det aldrig startade efter en ny commit och tredje försöket lyckades jag göra en ny commit
+på github och Travis kördes automagist med en build passed.
+
+
+###Scrutinzer
+Enkelt och smidigt, som sagt fick jag 10 Quality och 98% på Code coverage. Inga problem här inte.
+
+
+
+###Hur känns verktygen?
+Jodå det känns bra, viktigt att kunna i framtiden när man kodar för ett företag.
+
+
+
+Kmom07/10: Projekt och examination
+-----------------------------------
+
+Min webbplats kallar jag för LinuxQuestions eftersom den handlar om GNU/Linux frågor.
+
+###Krav 1, 2, 3: Grunden
+Det fanns väldigt många grundkrav och vissa var lätta och vissa svåra men definitivt tidskrävande. Det jobbigaste att implementera var kommentarer, vilket krävde väldigt många SQL-joins men jag löste det efter många timmar kodande.
+Grundkraven kändes väldigt bra och relativa till projektet.
+
+
+Användare hanteras med UserController som är en utbyggd version på det fjärde kursmomentets UserController, nu innehåller den flera nya actions som behövdes för grundkraven exempelvis updateAction, loginAction, logoutAction och profileAction.
+Användare finns under [Users](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/users), användaren använder sig av en gravatar som profilbild och man kan bara uppdatera sin egna profil, UserContorller kollar om man är inloggad som profilen man kollar på.
+Exempel: [Admins profil](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/users/profile/admin). UserControllern har rätt många actions som inte används just nu men som kan vara bra i framtiden för administrering av användare.
+För inloggning har jag skapat en Authentication model som har metoder för att logga in, kolla om man är inloggad och logga ut. Denna model används i UserControllern för inloggningen ska fungera smärtfritt.
+[Inloggning](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/users/login) finns längst upp i högra hörnet, [registrera användare](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/users/add) hittar man när man har tryckt på "Login" och trycker vidare på "Register here".
+
+
+LinuxQuestions har en [framsida](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/) som visar det senaste frågorna, mest aktiva användarna och populära taggar och här används en dispatcher för att kalla på vissa actions från question och tag kontrollerna.
+Den har också en sida för [frågor](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/questions), en sida för [taggar](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/tags) och en sida för [alla användare](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/users) och en [about sida](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/about).
+
+
+Frågor, svar och kommentar hanteras av QuestionController och Question modellen.
+Question modellen innehåller alla viktiga SQL-joins som behövs för att länka ihop frågor, svar och kommentarer.
+Question-kontrollern byggdes från grunden och blev rätt lång eftersom den har många actions.
+
+
+Taggar lösted med en Tag model och Tag controller. Taggarna läggs till när man skapar en fråga (kommaseparerade). Sedan görs det ett antal sträng funktioner i PHP för att kolla så att strängen inte innehåller onödiga tecken och är rätt skriven.
+När jag lägger in taggarna i databasen kör jag även serialize på tagg arrayen för att enkelt lägga in arrayen i databasen. När man plockar ut taggarna blir den en unserialize.
+
+
+
+
+###Sammanfattning:
+Projektet var väldigt tidskrävande, väldigt mycket mer än vad jag hade räknat med. När jag insåg att man även behövde kommentarer insåg jag att detta var ett stort projekt. Det blev några dagars kodande, dygnade även två gånger för att hinna bli klar innan redovisningen.
+Väldigt mycket databashantering i detta momentet och detta var väldigt svårt eftersom vi ej har gått någon databaskurs ännu. Känns väldigt bra att jag har arbetat med PHP och mysql innan, väldigt många SQL-joins krävdes för att få ihop allt...
+
+Projektet var lagom svårt, dock för mycket mysql kunskaper krävdes enligt mig.
+
+Jag gjorde ej några optionella krav eftersom min tidsplanering inte var den bästa. Om jag skulle hunnit skulle jag lätt kunnat implementera krav 4.
+
+
+
+###Kursen
+Oerhört intressant och utmanande kurs. Lätt den bästa jag har läst hittils.
+
+Efter att ha läst HTMLPHP och OOPHP var denna kursen ett steg i rätt riktning, den var ett steg högre upp och kändes som en bra fortsättningskurs.
+Kursen har handlat mest om MVC men även om testning, LESS, repsonsiv design samt alla program utanför vilket känns väldigt bra att kunna.
+Väldigt bra lärare och bra föreläsningar. Dock lite jobbigt att Anax-MVC ej var fullständigt (lite buggigt) och det uppstår problem vid kodandet.
+
+Ger denna kurs 10/10 toast.
+
+
+[GitHub](https://github.com/olund/WGTOTW)
+[Demo](http://www.student.bth.se/~heoa13/phpmvc/kmom07/webroot/)
+
+
+
+
+

@@ -354,8 +354,8 @@ class UsersController implements \Anax\DI\IInjectionAware
         $this->theme->setTitle('Login');
         // Kolla om man redan är inloggad.
         if ($this->auth->isAuthenticated()) {
-            //$this->response->redirect($this->url->create(''));
             $this->flashy->notice('Already logged in!');
+            exit();
         }
 
         // Skapa form
