@@ -447,7 +447,9 @@ class UsersController implements \Anax\DI\IInjectionAware
         $edit = false;
         if ($this->session->get('user') !== null) {
             $usrSession = $this->session->get('user');
-            $edit = $user->id == $usrSession->id ? true : false;
+            if (isset($usrSession->id)) {
+                $edit = $user->id == $usrSession->id ? true : false;
+            }
         }
 
 
